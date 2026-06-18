@@ -31,9 +31,10 @@ public class DataInitializer implements CommandLineRunner {
                 existing -> {
                     if (!"admin".equals(existing.getRole())) {
                         existing.setRole("admin");
-                        userRepository.save(existing);
                     }
-                    System.out.println("Admin exists: " + adminEmail);
+                    existing.setPasswordHash(passwordEncoder.encode(adminPassword));
+                    userRepository.save(existing);
+                    System.out.println("Admin password updated to match current config: " + adminEmail);
                 },
                 () -> {
                     User admin = new User();

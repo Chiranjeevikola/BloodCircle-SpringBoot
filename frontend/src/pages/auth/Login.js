@@ -41,7 +41,7 @@ export default function Login() {
   const handleRecover = async () => {
     setRecovering(true);
     try {
-      await api.post('/api/auth/recover-account', { email, password });
+      await api.post('/auth/recover-account', { email, password });
       toast.success('Account recovered! Logging in...');
       setShowRecover(false);
       // Now login normally

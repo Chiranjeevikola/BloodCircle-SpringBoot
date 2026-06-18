@@ -183,6 +183,9 @@ public class AuthController {
         }
 
         user.setRole(role);
+        if ("patient".equals(role) && user.getDonor() != null) {
+            user.getDonor().setAvailable(false);
+        }
         userRepository.save(user);
         return ResponseEntity.ok(Map.of("user", user.toMap()));
     }

@@ -66,6 +66,10 @@ public class PatientController {
         }
 
         user.setRole("patient");
+        if (user.getDonor() != null) {
+            user.getDonor().setAvailable(false);
+            donorRepository.save(user.getDonor());
+        }
 
         Patient patient = patientRepository.findByUserId(userId).orElse(null);
         if (patient != null) {
@@ -120,8 +124,8 @@ public class PatientController {
         }
 
         List<String> compatible = BloodCompatibilityUtil.getCompatibleDonorGroups(patient.getBloodGroupRequired());
-        List<Donor> matching = donorRepository.findTop10ByBloodGroupInAndIsAvailableTrueAndCityContainingIgnoreCase(
-                compatible, patient.getCity());
+        List<Donor> matching = donorRepository.findTop10ByBloodGroupInAndIsAvailableTrueAndCityContainingIgnoreCaseAndUserIdNot(
+                compatible, patient.getCity(), userId);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("patient", patient.toMap());
@@ -221,9 +225,9 @@ public class PatientController {
         String st = state.isEmpty() ? null : state;
 
         if (bg != null) {
-            results = donorRepository.searchDonors(bg, ct, st, available_only, pageable);
+            results = donorRepository.searchDonors(bg, ct, st, available_only, userId, pageable);
         } else {
-            results = donorRepository.searchDonorsCompatible(compatible, ct, st, available_only, pageable);
+            results = donorRepository.searchDonorsCompatible(compatible, ct, st, available_only, userId, pageable);
         }
 
         Map<String, Object> response = new LinkedHashMap<>();

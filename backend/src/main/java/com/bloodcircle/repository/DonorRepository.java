@@ -43,23 +43,25 @@ public interface DonorRepository extends JpaRepository<Donor, Long> {
 
     Page<Donor> findByIsAvailableFalse(Pageable pageable);
 
-    // Patient dashboard: compatible donors in same city
-    List<Donor> findTop10ByBloodGroupInAndIsAvailableTrueAndCityContainingIgnoreCase(
-            List<String> bloodGroups, String city);
+    // Patient dashboard: compatible donors in same city excluding current user
+    List<Donor> findTop10ByBloodGroupInAndIsAvailableTrueAndCityContainingIgnoreCaseAndUserIdNot(
+            List<String> bloodGroups, String city, Long userId);
 
-    // Full search with all filters
+    // Full search with all filters excluding current user
     @Query("SELECT d FROM Donor d WHERE " +
+            "d.userId != :userId AND " +
             "(:bloodGroup IS NULL OR d.bloodGroup = :bloodGroup) AND " +
             "(:city IS NULL OR LOWER(d.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND " +
             "(:state IS NULL OR LOWER(d.state) LIKE LOWER(CONCAT('%', :state, '%'))) AND " +
             "(:availableOnly = false OR d.isAvailable = true)")
-    Page<Donor> searchDonors(String bloodGroup, String city, String state, boolean availableOnly, Pageable pageable);
+    Page<Donor> searchDonors(String bloodGroup, String city, String state, boolean availableOnly, Long userId, Pageable pageable);
 
     @Query("SELECT d FROM Donor d WHERE " +
+            "d.userId != :userId AND " +
             "d.bloodGroup IN :compatibleGroups AND " +
             "(:city IS NULL OR LOWER(d.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND " +
             "(:state IS NULL OR LOWER(d.state) LIKE LOWER(CONCAT('%', :state, '%'))) AND " +
             "(:availableOnly = false OR d.isAvailable = true)")
     Page<Donor> searchDonorsCompatible(List<String> compatibleGroups, String city, String state,
-                                       boolean availableOnly, Pageable pageable);
+                                       boolean availableOnly, Long userId, Pageable pageable);
 }

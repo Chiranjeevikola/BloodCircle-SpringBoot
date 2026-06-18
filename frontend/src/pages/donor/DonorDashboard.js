@@ -1,13 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import API from '../../api';
 import { toast } from 'react-toastify';
 import { FaTint, FaMapMarkerAlt, FaPhone, FaCalendarAlt } from 'react-icons/fa';
 
 export default function DonorDashboard() {
+  const { refreshUser } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [switching, setSwitching] = useState(false);
   const navigate = useNavigate();
+
+  const handleSwitchToPatient = async () => {
+    setSwitching(true);
+    try {
+      await API.post('/auth/select-role', { role: 'patient' });
+      const updatedUser = await refreshUser();
+      if (updatedUser.has_patient_profile) {
+        toast.success('Switched to Patient Dashboard.');
+        navigate('/patient/dashboard');
+      } else {
+        toast.success('Role set to Patient. Please complete your profile.');
+        navigate('/patient/register');
+      }
+    } catch {
+      toast.error('Failed to switch role.');
+    } finally {
+      setSwitching(false);
+    }
+  };
 
   useEffect(() => {
     API.get('/donor/dashboard')
@@ -83,7 +105,9 @@ export default function DonorDashboard() {
         <div className="card mt-2">
           <h3 className="card-header">Switch Role</h3>
           <p className="text-muted mb-2">Need blood instead? Switch to patient role.</p>
-          <Link to="/select-role?switch=true" className="btn btn-outline btn-sm">Switch to Patient</Link>
+          <button onClick={handleSwitchToPatient} disabled={switching} className="btn btn-outline btn-sm">
+            {switching ? 'Switching...' : 'Switch to Patient'}
+          </button>
         </div>
       </div>
     </div>

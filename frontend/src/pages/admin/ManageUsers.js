@@ -64,7 +64,7 @@ export default function ManageUsers() {
                 {users.map(u => (
                   <tr key={u.id}>
                     <td>{u.id}</td>
-                    <td>{u.email.split('@')[0]}</td>
+                    <td>{u.username}</td>
                     <td>{u.email}</td>
                     <td><span className="badge badge-primary">{u.role || 'none'}</span></td>
                     <td>

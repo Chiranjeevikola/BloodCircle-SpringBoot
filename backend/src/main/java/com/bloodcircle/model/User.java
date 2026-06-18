@@ -94,12 +94,29 @@ public class User {
     public Patient getPatient() { return patient; }
     public void setPatient(Patient patient) { this.patient = patient; }
 
+    public String getDisplayName() {
+        if (donor != null && donor.getFullName() != null && !donor.getFullName().trim().isEmpty()) {
+            return donor.getFullName();
+        }
+        if (patient != null && patient.getFullName() != null && !patient.getFullName().trim().isEmpty()) {
+            return patient.getFullName();
+        }
+        if ("admin".equals(role)) {
+            return "Administrator";
+        }
+        if (email != null && email.contains("@")) {
+            return email.split("@")[0];
+        }
+        return email;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("id", id);
         map.put("email", email);
         map.put("phone", phone);
         map.put("role", role);
+        map.put("username", getDisplayName());
         map.put("is_verified", isVerified);
         map.put("is_active", isActive);
         map.put("is_blocked", isBlocked);

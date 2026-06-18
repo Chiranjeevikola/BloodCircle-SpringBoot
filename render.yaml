@@ -7,22 +7,23 @@ databases:
 services:
   - type: web
     name: bloodcircle
-    runtime: python
+    runtime: docker
     plan: free
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn run:app"
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: DATABASE_URL
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: bloodcircle-db
           property: connectionString
-      - key: SECRET_KEY
+      - key: JWT_SECRET
         generateValue: true
-      - key: JWT_SECRET_KEY
+      - key: ADMIN_EMAIL
+        value: chiranjeevi.kola@zohomail.in
+      - key: ADMIN_PASSWORD
         generateValue: true
-      - key: FLASK_ENV
-        value: production
-      - key: PYTHON_VERSION
-        value: "3.11.9"
-      - key: NODE_VERSION
-        value: "18"
+      - key: MAIL_USERNAME
+        value: chirukola123@gmail.com
+      - key: MAIL_PASSWORD
+        sync: false  # Set manually in Render dashboard (sensitive)

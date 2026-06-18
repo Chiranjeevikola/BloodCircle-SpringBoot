@@ -16,6 +16,7 @@ import PrivacyPolicy from './pages/main/PrivacyPolicy';
 // Auth pages
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
 import SelectRole from './pages/auth/SelectRole';
 
 // Donor pages
@@ -57,6 +58,7 @@ export default function App() {
           {/* Auth */}
           <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+          <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
           <Route path="/select-role" element={<ProtectedRoute><SelectRole /></ProtectedRoute>} />
 
           {/* Donor */}

@@ -64,6 +64,12 @@ export default function PatientDashboard() {
           <Link to="/patient/profile" className="btn btn-outline">View Profile</Link>
           <Link to="/patient/edit-profile" className="btn btn-secondary">Edit Profile</Link>
         </div>
+
+        <div className="card mt-2">
+          <h3 className="card-header">Switch Role</h3>
+          <p className="text-muted mb-2">Want to donate blood? Switch to donor role.</p>
+          <Link to="/select-role?switch=true" className="btn btn-outline btn-sm">Switch to Donor</Link>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api';
@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { BLOOD_GROUPS, GENDERS } from '../../constants';
 
 export default function DonorRegister() {
-  const { refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -14,8 +14,38 @@ export default function DonorRegister() {
     gender: '', city: '', state: '', pincode: '',
     last_donation_date: '', medical_history: '', is_available: true,
   });
+  const [prefilled, setPrefilled] = useState(false);
+
+  useEffect(() => {
+    if (user?.patient && !prefilled) {
+      setForm(prev => ({
+        ...prev,
+        full_name: user.patient.full_name || '',
+        phone: user.patient.phone || '',
+        blood_group: user.patient.blood_group_required || '',
+        city: user.patient.city || '',
+        state: user.patient.state || '',
+        pincode: user.patient.pincode || '',
+      }));
+      setPrefilled(true);
+    }
+  }, [user, prefilled]);
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+
+  const handleBack = async () => {
+    if (user?.patient) {
+      try {
+        await API.post('/auth/select-role', { role: 'patient' });
+        await refreshUser();
+        navigate('/patient/dashboard');
+      } catch {
+        navigate('/patient/dashboard');
+      }
+    } else {
+      navigate('/select-role?switch=true');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,9 +126,14 @@ export default function DonorRegister() {
                 I am available to donate
               </label>
             </div>
-            <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-              {loading ? 'Saving...' : 'Complete Registration'}
-            </button>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <button type="button" onClick={handleBack} className="btn btn-outline" style={{ flex: 1 }}>
+                Back
+              </button>
+              <button type="submit" className="btn btn-primary" style={{ flex: 2 }} disabled={loading}>
+                {loading ? 'Saving...' : 'Complete Registration'}
+              </button>
+            </div>
           </form>
         </div>
       </div>

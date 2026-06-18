@@ -80,11 +80,10 @@ export default function DonorDashboard() {
             <p><FaCalendarAlt color="var(--primary)" /> <strong>Age:</strong> {donor.age} years</p>
           </div>
         </div>
-
         <div className="card mt-2">
           <h3 className="card-header">Switch Role</h3>
           <p className="text-muted mb-2">Need blood instead? Switch to patient role.</p>
-          <Link to="/select-role" className="btn btn-outline btn-sm">Switch to Patient</Link>
+          <Link to="/select-role?switch=true" className="btn btn-outline btn-sm">Switch to Patient</Link>
         </div>
       </div>
     </div>

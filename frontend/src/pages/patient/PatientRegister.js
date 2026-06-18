@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import API from '../../api';
 import { toast } from 'react-toastify';
 import { BLOOD_GROUPS } from '../../constants';
 
 export default function PatientRegister() {
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     full_name: '', phone: '', blood_group_required: 'A+',
@@ -12,14 +14,45 @@ export default function PatientRegister() {
     urgency_level: 'Normal', required_by_date: '',
   });
   const [loading, setLoading] = useState(false);
+  const [prefilled, setPrefilled] = useState(false);
+
+  useEffect(() => {
+    if (user?.donor && !prefilled) {
+      setForm(prev => ({
+        ...prev,
+        full_name: user.donor.full_name || '',
+        phone: user.donor.phone || '',
+        blood_group_required: user.donor.blood_group || 'A+',
+        city: user.donor.city || '',
+        state: user.donor.state || '',
+        pincode: user.donor.pincode || '',
+      }));
+      setPrefilled(true);
+    }
+  }, [user, prefilled]);
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  const handleBack = async () => {
+    if (user?.donor) {
+      try {
+        await API.post('/auth/select-role', { role: 'donor' });
+        await refreshUser();
+        navigate('/donor/dashboard');
+      } catch {
+        navigate('/donor/dashboard');
+      }
+    } else {
+      navigate('/select-role?switch=true');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       await API.post('/patient/register', form);
+      await refreshUser();
       toast.success('Patient profile registered!');
       navigate('/patient/dashboard');
     } catch (err) {
@@ -65,7 +98,14 @@ export default function PatientRegister() {
               </select>
             </div>
             <div className="form-group"><label>Medical Condition</label><textarea className="form-control" value={form.medical_condition} onChange={set('medical_condition')} placeholder="Describe your condition..." /></div>
-            <button type="submit" className="btn btn-primary btn-block" disabled={loading}>{loading ? 'Registering...' : 'Register as Patient'}</button>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <button type="button" onClick={handleBack} className="btn btn-outline" style={{ flex: 1 }}>
+                Back
+              </button>
+              <button type="submit" className="btn btn-primary" style={{ flex: 2 }} disabled={loading}>
+                {loading ? 'Registering...' : 'Register as Patient'}
+              </button>
+            </div>
           </form>
         </div>
       </div>

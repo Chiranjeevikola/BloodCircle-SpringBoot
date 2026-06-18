@@ -9,18 +9,30 @@ export default function SelectRole() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
 
+  const query = new URLSearchParams(window.location.search);
+  const isSwitching = query.get('switch') === 'true';
+
   const selectRole = async (role) => {
     try {
       await API.post('/auth/select-role', { role });
-      await refreshUser();
-      toast.success(`Role set to ${role}. Please complete your profile.`);
-      navigate(`/${role}/register`);
+      const updatedUser = await refreshUser();
+      
+      if (role === 'donor' && updatedUser.has_donor_profile) {
+        toast.success('Switched to Donor Dashboard.');
+        navigate('/donor/dashboard');
+      } else if (role === 'patient' && updatedUser.has_patient_profile) {
+        toast.success('Switched to Patient Dashboard.');
+        navigate('/patient/dashboard');
+      } else {
+        toast.success(`Role set to ${role}. Please complete your profile.`);
+        navigate(`/${role}/register`);
+      }
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to set role.');
     }
   };
 
-  if (user?.role) {
+  if (user?.role && !isSwitching) {
     // Already has role, redirect
     if (user.role === 'donor') navigate('/donor/dashboard');
     if (user.role === 'patient') navigate('/patient/dashboard');

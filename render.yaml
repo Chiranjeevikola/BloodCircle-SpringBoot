@@ -22,7 +22,7 @@ services:
       - key: ADMIN_EMAIL
         value: chiranjeevi.kola@zohomail.in
       - key: ADMIN_PASSWORD
-        generateValue: true
+        value: g0abdkbxa6
       - key: MAIL_USERNAME
         value: chirukola123@gmail.com
       - key: MAIL_PASSWORD
